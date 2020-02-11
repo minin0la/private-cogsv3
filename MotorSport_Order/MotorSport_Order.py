@@ -176,8 +176,10 @@ class MOTORSPORT_ORDER(commands.Cog):
                             await msg.add_reaction("💎")
                             await self.membership.member(author).Name.set(customer_name.content)
                             await self.membership.member(author).MemberID.set(author.id)
+                            price = final_price.replace("$ ","").replace(',',"")
+                            price = int(price)
                             async with self.membership.member(author).Orders() as orders:
-                                orders.append({"Order_ID": msg.id, "Vehicle_Name": final_vehname, "Status": "Shipping"})
+                                orders.append({"Order_ID": msg.id, "Vehicle_Name": final_vehname, "Price": price, "Status": "Shipping"})
                             break
                         elif answer.content.lower() == 'no':
                             car_name = None
