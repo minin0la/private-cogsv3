@@ -34,6 +34,7 @@ class MOTORSPORT_ORDER(commands.Cog):
         order_channel = self.bot.get_channel(341936700366258177)
         member = guild.get_member(author.id)
         ordering_channel = self.bot.get_channel(629301622870376448)
+        car_name_recieve = 0
         if len(ordering_channel.overwrites) > 1:
             await ctx.send("""Someone else is placing order right now. Please try again later!""")
         else:
@@ -46,42 +47,32 @@ class MOTORSPORT_ORDER(commands.Cog):
                 msg = await ordering_channel.send("""Hi, Welcome to Premium Deluxe Motorsport Ordering System""")
                 VIP = 0
             while True:
-                await ordering_channel.send("""What is your First and Last name? (Character Name)""")
                 try:
+                    await ordering_channel.send("""What is your First and Last name? (Character Name)""")
                     customer_name = await self.bot.wait_for('message', check=check, timeout=120)
-                except asyncio.TimeoutError: 
-                    await ordering_channel.send("Timeout! Please type !order to place order again")
-                    break
-                await ordering_channel.send("""What is your phone number? (If you do not have your  phone, type 'None')""")
-                try:
+                    await ordering_channel.send("""What is your phone number? (If you do not have your  phone, type 'None')""")
                     contact_number = await self.bot.wait_for('message', check=check, timeout=120)
-                except asyncio.TimeoutError: 
-                    await ordering_channel.send("Timeout! Please type !order to place order again")
-                    break
-                await ordering_channel.send("""Do you preferred to be contacted by Phone (In-game) or Email (Discord)?""")
-                try:
+                    await ordering_channel.send("""Do you preferred to be contacted by Phone (In-game) or Email (Discord)?""")
                     contact_method = await self.bot.wait_for('message', check=check, timeout=120)
                 except asyncio.TimeoutError: 
-                        await ordering_channel.send("Timeout! Please type !order to place order again")
-                        break
-                await ordering_channel.send("""Any questions and comments?""")
+                    await ordering_channel.send("Timeout! Please type !order to place order again")
+                    break
                 try:
+                    await ordering_channel.send("""Any questions and comments?""")
                     customer_remarks = await self.bot.wait_for('message', check=check, timeout=120)
+                    customer_remarks = customer_remarks.content
                 except asyncio.TimeoutError: 
                     await ordering_channel.send("""Nothing? Alright.""")
                     customer_remarks = "None"
-                else:
-                    customer_remarks = customer_remarks.content
                 while True:
                     if car_name is None:
                         await ordering_channel.send("What is the vehicle name?")
                         try:
                             car_name = await self.bot.wait_for('message', check=check, timeout=120)
+                            car_name = car_name.content
                         except asyncio.TimeoutError: 
                             await ordering_channel.send("Timeout! Please type !order to place order again")
                             break
-                        else:
-                            car_name = car_name.content
                     else:
                         Prices = await self.prices.guild(ctx.guild).Prices()
                         car_list = [d['Vehicle Name'] for d in Prices]
