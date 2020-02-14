@@ -39,7 +39,7 @@ class MOTORSPORT_STOCK(commands.Cog):
     @commands.guild_only()
     async def stock(self, ctx, *, vehicle_name): 
         """
-        Use to search in-stock vehicle
+        Used to search in-stock vehicle
         """
         async with self.database.guild(ctx.guild).Stocks() as stocks:
             car_list = [d['Name'] for d in stocks]
@@ -111,7 +111,7 @@ class MOTORSPORT_STOCK(commands.Cog):
     @commands.guild_only()
     async def fstock(self, ctx, *, vehicle_name):
         """
-        Use to search in-stock vehicle
+        Used to search in-stock vehicle
         """
         msg = await ctx.send("Updating vehicle stocks")
         shipment_channel = self.bot.get_channel(667348336277323787)
@@ -132,7 +132,7 @@ class MOTORSPORT_STOCK(commands.Cog):
         except:
             await msg.edit(content="Error: Invalid Token. Geting new token...")
             url = "https://api.eclipse-rp.net/auth/login"
-            with open('/root/data.txt') as thefile:
+            with open('../data.txt') as thefile:
                 data = thefile.read()
                 payload = str(data).replace("\n", "")
             headers = {
@@ -253,7 +253,7 @@ class MOTORSPORT_STOCK(commands.Cog):
         except:
             await msg.edit(content="Error: Invalid Token. Geting new token...")
             url = "https://api.eclipse-rp.net/auth/login"
-            with open('/root/data.txt') as thefile:
+            with open('../data.txt') as thefile:
                 data = thefile.read()
                 payload = str(data).replace("\n", "")
             headers = {
@@ -388,7 +388,7 @@ class MOTORSPORT_STOCK(commands.Cog):
         except:
             await msg.edit(content="Error: Invalid Token. Geting new token...")
             url = "https://api.eclipse-rp.net/auth/login"
-            with open('/root/data.txt') as thefile:
+            with open('../data.txt') as thefile:
                 data = thefile.read()
                 payload = str(data).replace("\n", "")
             headers = {
@@ -508,7 +508,7 @@ class MOTORSPORT_STOCK(commands.Cog):
         except:
             await msg.edit(content="Error: Invalid Token. Geting new token...")
             url = "https://api.eclipse-rp.net/auth/login"
-            with open('/root/data.txt') as thefile:
+            with open('../data.txt') as thefile:
                 data = thefile.read()
                 payload = str(data).replace("\n", "")
             headers = {
@@ -600,7 +600,7 @@ class MOTORSPORT_STOCK(commands.Cog):
             data = data['dealerships']
         except:
             url = "https://api.eclipse-rp.net/auth/login"
-            with open('/root/data.txt') as thefile:
+            with open('../data.txt') as thefile:
                 data = thefile.read()
                 payload = str(data).replace("\n", "")
             headers = {

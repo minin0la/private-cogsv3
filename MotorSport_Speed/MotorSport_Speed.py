@@ -23,7 +23,7 @@ class MOTORSPORT_SPEED(commands.Cog):
     @commands.guild_only()
     async def speed(self, ctx, *, car_name: str):
 
-        """Use to check vehicle speed"""
+        """Used to check vehicle speed"""
         msg = await ctx.send("""**Please wait while I refine your search entries.**""")
         sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1nQND3ikiLzS3Ij9kuV-rVkRtoYetb79c52JWyafb4m4')
         wks = sh.worksheet('id', '999161401')
@@ -79,7 +79,7 @@ class MOTORSPORT_SPEED(commands.Cog):
     @commands.guild_only()
     async def fastest(self, ctx, *, class_name: str):
 
-        """Use to check fastest vehicle by Class"""
+        """Used to check fastest vehicle by Class"""
         msg = await ctx.send("""**Please wait while I refine your search entries.**""")
         sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1nQND3ikiLzS3Ij9kuV-rVkRtoYetb79c52JWyafb4m4')
         wks = sh.worksheet('id', '999161401')

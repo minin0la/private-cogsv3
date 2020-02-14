@@ -14,7 +14,7 @@ class DCC_GENERAL(commands.Cog):
     @commands.command(pass_context=True, aliases=["bc"])
     async def businesscard(self, ctx):
 
-        """Use to generate businesscard"""
+        """Used to generate businesscard"""
         author = ctx.message.author
         got_data = False
         position = author.top_role.name
@@ -70,5 +70,4 @@ class DCC_GENERAL(commands.Cog):
 
     @commands.command(pass_context=True)
     async def joindate(self, ctx, member: discord.Member):
-        guild = ctx.guild
         await ctx.send("{}: Joined at {}".format(member.mention, member.joined_at.strftime("%m/%d/%Y, %H:%M:%S")))

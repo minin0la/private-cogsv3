@@ -21,7 +21,7 @@ class DCC_PROMOTION(commands.Cog):
     @commands.has_any_role("CEO", "COO", "Bot-Developer", 'General Manager', 'Manager', 'Assistant Manager', 'CPO')
     async def promote(self, ctx, user: discord.Member, *, role_name: discord.Role):
 
-        """Use to promote players"""
+        """Used to promote players"""
         author = ctx.author
         channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
         bot_coders_channel = self.bot.get_channel(332558212429512704) #Get Bot-Coder channel
@@ -44,7 +44,7 @@ class DCC_PROMOTION(commands.Cog):
     @commands.has_any_role("CEO", "COO", "Bot-Developer", 'General Manager', 'Manager', 'Assistant Manager', 'CPO')
     async def demote(self, ctx, user: discord.Member, *, role_name: discord.Role):
 
-        """Use to demote players"""
+        """Used to demote players"""
 
         author = ctx.message.author
         channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
@@ -74,7 +74,7 @@ class DCC_PROMOTION(commands.Cog):
     @commands.has_any_role("CEO", "COO", "Bot-Developer", 'General Manager', 'Manager', 'Assistant Manager', 'CPO')
     async def dismiss(self, ctx, user: discord.Member):
 
-        """Use to dismiss players"""
+        """Used to dismiss players"""
 
         server = ctx.guild
         author = ctx.message.author
@@ -105,7 +105,7 @@ class DCC_PROMOTION(commands.Cog):
     @commands.has_any_role("CEO", "COO", "Bot-Developer", 'General Manager', 'Manager', 'Assistant Manager', 'CPO')
     async def suspend(self, ctx, user: discord.Member):
 
-        """Use to suspend players"""
+        """Used to suspend players"""
 
         server = ctx.message.guild
         author = ctx.message.author
@@ -136,7 +136,7 @@ class DCC_PROMOTION(commands.Cog):
     @commands.has_any_role("CEO", "COO", "Bot-Developer", 'General Manager', 'Manager', 'Assistant Manager', 'CPO')
     async def accept(self, ctx, user: discord.Member, *, role_name: discord.Role):
 
-        """Use to accept players"""
+        """Used to accept players"""
 
         author = ctx.message.author
         channel = self.bot.get_channel(367383714810036225) #Get linda-office channel

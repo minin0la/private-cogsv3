@@ -15,18 +15,62 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
         self.database = Config.get_conf(self, identifier=1)
         data = {"Name": "",
                 "MemberID": "",
-                "Orders": [],
-                "VIP_Status": False,
-                "Customer_Status": False,
-                "Shopper_Status": True,
+                "Orders": []
         }
         self.database.register_member(**data)
 
-    @commands.command(pass_context=True)
+    #Command group for [p]membership
+    @commands.group(pass_context=True, invoke_without_command=True)
+    async def membership(self, ctx, user_id=None):
+        """Used to manage membership
+        """
+        if ctx.invoked_subcommand is None:
+            if user_id is not None:
+                if 'Bot-Developer' in [x.name for x in ctx.author.roles]:
+                    cmd = self.bot.get_command(f'membership info')
+                    await ctx.invoke(cmd, user_id=user_id)
+            else:
+                cmd = self.bot.get_command(f'membership info')
+                await ctx.invoke(cmd, user_id=ctx.author.id)
+
+    #[p]membership info
+    @membership.command(pass_context=True)
+    async def info(self, ctx, user_id=None):
+        """Check membership Info
+        """
+        if user_id is not None:
+            if 'Bot-Developer' in [x.name for x in ctx.author.roles]:
+                try:
+                    author = await ctx.guild.fetch_member(int(user_id))
+                except ValueError:
+                    ctx.invoked_subcommand = user_id
+            else:
+                author = ctx.author
+        else:
+            author = ctx.author
+        membershipinfo = await self.database.member(author).get_raw()
+        if membershipinfo['Name'] != "":
+            value = 0
+            orders = await self.database.member(author).Orders()
+            for x in orders:
+                value = value + x['Price']
+            embed = discord.Embed(title="Membership info", colour=discord.Colour(0xFF00FF))
+            embed.set_thumbnail(url='https://i.imgur.com/xJyIgAQ.png')
+            embed.set_author(name=membershipinfo['Name'], icon_url=author.avatar_url)
+            embed.add_field(name="Number of purchased", value=len(membershipinfo['Orders']), inline=True)
+            embed.add_field(name="Total spent", value=value, inline=True)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("Please register by using !membership register or start ordering with !order")
+    
+    #[p]membership register
+    @membership.command(pass_context=True)
     async def register(self, ctx, *, name: str):
-        """Use to register an account with Motorsport
+        """Register an account with Motorsport
+
         Usage: !register <name>
-        Example: !register Jasper Akerman"""
+        Example: !register Jasper Akerman
+        """
 
         author = ctx.author
         await self.database.member(author).Name.set(name)
@@ -38,26 +82,21 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
         embed.set_thumbnail(
             url='https://i.imgur.com/xJyIgAQ.png')
         await ctx.send(embed=embed)
-    
-    @commands.command(pass_context=True)
-    async def membership(self, ctx):
-        author = ctx.author
-        membershipinfo = await self.database.member(author).get_raw()
-        if membershipinfo['Name'] != "":
-            embed = discord.Embed(title="Motorsport Membership", colour=discord.Colour(0xFF00FF))
-            embed.set_thumbnail(url='https://i.imgur.com/xJyIgAQ.png')
-            embed.set_author(name=membershipinfo['Name'], icon_url=author.avatar_url)
-            embed.add_field(name="Number of Purchased", value=len(membershipinfo['Orders']), inline=False)
-            embed.add_field(name="VIP", value=membershipinfo['VIP_Status'], inline=True)
-            embed.add_field(name="Customer", value=membershipinfo['Customer_Status'], inline=True)
-            embed.add_field(name="Shopper", value=membershipinfo['Shopper_Status'], inline=True)
-            await ctx.send(embed=embed)
+
+    #[p]membership unregister
+    @membership.command(pass_context=True)
+    async def unregister(self, ctx, user_id = None):
+        """Unregister an account from Motorsport
+
+        Usage: !unregister
+        """
+        if user_id is not None:
+            if 'Administrator' in [x.name for x in ctx.author.roles]:
+                author = await ctx.guild.fetch_member(int(user_id))
+            else:
+                author = ctx.author
         else:
-            await ctx.send("Please register with us first with !register or start ordering with !order")
-    
-    @commands.command(pass_context=True)
-    async def unregister(self, ctx):
-        author = ctx.author
+            author = ctx.author
         def check(m):
             return m.channel == ctx.channel and m.author == ctx.author
         try:
@@ -71,12 +110,18 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
         except asyncio.TimeoutError:
                 await ctx.send("You did not answer in time.")
 
-    @commands.command(pass_context=True)
-    async def myorders(self, ctx, user: discord.Member = None):
-        if user is None:
-            author = ctx.author
+    #[p]membership orders
+    @membership.command(pass_context=True)
+    async def orders(self, ctx, user_id = None):
+        """Check orders history with Motorsport
+        """
+        if user_id is not None:
+            if 'Bot-Developer' in [x.name for x in ctx.author.roles]:
+                author = await ctx.guild.fetch_member(int(user_id))
+            else:
+                author = ctx.author
         else:
-            author = user
+            author = ctx.author
         membershipinfo = await self.database.member(author).get_raw()
         shipping = ""
         collection = ""
@@ -110,50 +155,15 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
                 except:
                     embed.add_field(name="", value="No history", inline=False)
             else:
-                await ctx.send("Please register with us first with !register or start ordering with !order")
+                await ctx.send("Please register by using !membership register or start ordering with !order")
         except:
             pass
-    
-    @commands.command(pass_context=True)
-    async def getmessage(self, ctx):
-        author = ctx.author
-        data = []
-        final_data = []
-        counter = 0
-        themessage = ""
-        channel = self.bot.get_channel(341936700366258177)
-        message = await channel.history(limit=3000).flatten()
-        for x in message:
-            try:
-                message_data = x.embeds[0].to_dict()
-                for y in message_data['fields']:
-                    if y['name'] == 'Discord':
-                        data.append(y['value'])
-            except:
-                pass
-        data = list(dict.fromkeys(data))
-        for x in data:
-            for y in message:
-                try:
-                    message_data = y.embeds[0].to_dict()
-                    for c in message_data['fields']:
-                        if c['name'] == 'Discord' and c['value'] == x:
-                            counter = counter + 1
-                except:
-                    pass
-            final_data.append({"Name": str(x), "Count": counter})
-            counter = 0
-        final_data = sorted(final_data, key=lambda k: k['Count'])
-        for x in final_data:
-            themessage = themessage + x['Name'] + ' ({})\n'.format(x['Count'])
 
-
-        themessage = utils.chat_formatting.pagify(themessage, delims="\n", page_length=1000)
-        for q in themessage:
-            await ctx.send(q)
-
-    @commands.command(pass_context=True)
-    async def importorders(self, ctx):
+    @membership.command(pass_context=True)
+    @commands.has_any_role("Administrator")
+    async def importall(self, ctx):
+        """Import all data from #orders channel to users
+        """
         guild = ctx.guild
         channel = self.bot.get_channel(341936700366258177)
         message = await channel.history(limit=3000).flatten()
@@ -178,25 +188,29 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
                 pass
         await ctx.send("Imported {}".format(counter))
 
-    @commands.command(pass_context=True)
+    @membership.command(pass_context=True)
     @checks.is_owner()
-    async def clearall_customer(self, ctx):
+    async def resetall(self, ctx):
+        """Reset membership database
+        """
         await self.database.clear_all()
         await ctx.send("Cleared All")        
 
-    
-    @commands.command(pass_context=True)
-    async def totalspent(self, ctx, user: discord.Member = None):
-        if user is None:
-            author = ctx.author
-        else:
-            author = user
-        value = 0
-        orders = await self.database.member(author).Orders()
-        for x in orders:
-            value = value + x['Price']
-        await ctx.send("Total Spent: $" + str(value))
+    @commands.group(pass_context=True)
+    @commands.has_any_role("Administrator")
+    async def membershipset(self, ctx):
+        """Set user's data
+        """
+        pass  
 
+    @membershipset.command(pass_context=True)
+    @commands.has_any_role("Administrator")
+    async def name(self, ctx, user_id: int, name: str):
+        """Used to set user's name
+        """
+        author = await ctx.guild.fetch_member(user_id)
+        await self.database.member(author).Name.set(name)
+        await ctx.send("The name for {} has been set to {}".format(author.mention, name))
 
     @commands.command(pass_context=True)
     async def cancelorder(self, ctx, Order_ID: int):
@@ -223,7 +237,7 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     async def givecustomer(self, ctx, user: discord.Member):
 
-        """Use to give Customer to players"""
+        """Used to give Customer to players"""
         author = ctx.message.author
         management = self.bot.get_channel(341936003029794826)
         customer_role = ctx.guild.get_role(343722834016862211)
@@ -243,7 +257,7 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     async def givevip(self, ctx, user: discord.Member):
 
-        """Use to give VIP to players"""
+        """Used to give VIP to players"""
         author = ctx.message.author
         management = self.bot.get_channel(341936003029794826)
         VIP_role = ctx.guild.get_role(345786815959007234)
@@ -263,11 +277,7 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     async def done(self, ctx, user: discord.Member):
 
-        """Use to notify about stock ready to player"""
-        # management = discord.utils.get(server.channels, name='management',
-        #                             type=discord.ChannelType.text)
-        # customer_role = discord.utils.get(server.roles, name='VIP')
-        # await user.add_roles(customer_role)
+        """Used to notify about stock ready to player"""
         embed = discord.Embed(title="Motorsport Notification", colour=discord.Colour(
             0xFF0000), description="Your brand new vehicle is ready for collection at Motorsports, the dealership located next to Mors Insurance.\nEnjoy! :smile:")
         embed.set_thumbnail(url="https://i.imgur.com/xJyIgAQ.png")

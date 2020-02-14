@@ -9,7 +9,7 @@ from discord.ext import tasks
 from redbot.core import Config
 from redbot.core import commands
 
-gc = pygsheets.authorize(service_file='/root/client_secret.json')
+gc = pygsheets.authorize(service_file='../client_secret.json')
 
 
 class MOTORSPORT_PRICE(commands.Cog):
@@ -29,7 +29,7 @@ class MOTORSPORT_PRICE(commands.Cog):
     @commands.cooldown(1, 3)
     @commands.guild_only()
     async def price(self, ctx, *, car_name: str):
-        """Use to search price"""
+        """Used to search price"""
 
         prices = await self.database.guild(ctx.guild).Prices()
         car_list = [d['Vehicle Name'] for d in prices]
@@ -73,7 +73,7 @@ class MOTORSPORT_PRICE(commands.Cog):
     @commands.guild_only()
     async def vprice(self, ctx, *, car_name: str):
 
-        """Use to search VIP price"""
+        """Used to search VIP price"""
         prices = await self.database.guild(ctx.guild).Prices()
         car_list = [d['Vehicle Name'] for d in prices]
         car_name_matched = process.extractBests(car_name, car_list, score_cutoff=80, limit=2)

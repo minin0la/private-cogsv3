@@ -33,7 +33,7 @@ class DCC_WELCOME(commands.Cog):
     @commands.guild_only()
     async def name(self, ctx, *, name: str):
 
-        """Use to change name on first join"""
+        """Used to change name on first join"""
         if len(ctx.author.roles) == 1:
             await ctx.author.edit(nick=name)
             await ctx.message.delete()
@@ -49,7 +49,7 @@ class DCC_WELCOME(commands.Cog):
     @commands.guild_only()
     async def interview(self, ctx):
 
-        """Use to give interview role"""
+        """Used to give interview role"""
         author = ctx.author
         interview_channel = self.bot.get_channel(353066751853854721)
         interviewee = ctx.guild.get_role(353065275303788544)
@@ -66,7 +66,7 @@ class DCC_WELCOME(commands.Cog):
     @commands.guild_only()
     async def visitor(self, ctx):
 
-        """Use to join as visitor"""
+        """Used to join as visitor"""
         author = ctx.author
         shitposting_channel = self.bot.get_channel(409027176336195584)
         visitor = ctx.guild.get_role(317392264571650058)

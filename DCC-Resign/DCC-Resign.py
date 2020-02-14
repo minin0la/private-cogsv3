@@ -14,7 +14,7 @@ class DCC_RESIGN:
     @commands.command(pass_context=True, no_pm=True)
     async def resign(self, ctx, *, themessage):
 
-        """Use to write a resign letter. Please write a message after the command."""
+        """Used to write a resign letter. Please write a message after the command."""
 
         server = ctx.message.server
         author = ctx.message.author
