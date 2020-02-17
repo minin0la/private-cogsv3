@@ -1,11 +1,23 @@
-import discord
+
 import os
+import asyncio
+import datetime
+
+#PIL
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
+
+#discord
+import discord
 from discord.ext import commands
+
+#redbot
 from redbot.core import commands
 from redbot.core import Config
 from redbot.core import utils
 from redbot.core import checks
-import asyncio
+from redbot.core.data_manager import bundled_data_path
 
 class MOTORSPORT_CUSTOMERS(commands.Cog):
     """Its all about Motorsport - Customer Systems"""
@@ -15,20 +27,35 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
         self.database = Config.get_conf(self, identifier=1)
         data = {"Name": "",
                 "MemberID": "",
-                "Orders": []
+                "Orders": [],
+                "Spent": 0,
+                "Joined_Date": ""
         }
         self.database.register_member(**data)
+        self.cardlist = {'Customers':'Customers',
+        'Weazel News Partner':'Partner_Client',
+        'Los Santos Custom Partner':'Partner_Client',
+        'VIP':'VIP',
+        'Partners':'Partners',
+        'Graphic Designer':'Designer',
+        'Founders':'Founders',
+        'Assistant':'Assistant',
+        'Assistant Manager':'Management',
+        'Manager':'Management',
+        'Bot-Developer':'Developer',
+        'Co-Owner':'Co-Owner',
+        'Owner':'Owner'}
 
     #Command group for [p]membership
     @commands.group(pass_context=True, invoke_without_command=True)
-    async def membership(self, ctx, user_id=None):
+    async def membership(self, ctx, option=None):
         """Used to manage membership
         """
         if ctx.invoked_subcommand is None:
-            if user_id is not None:
+            if option is not None:
                 if 'Bot-Developer' in [x.name for x in ctx.author.roles]:
                     cmd = self.bot.get_command(f'membership info')
-                    await ctx.invoke(cmd, user_id=user_id)
+                    await ctx.invoke(cmd, user_id=option)
             else:
                 cmd = self.bot.get_command(f'membership info')
                 await ctx.invoke(cmd, user_id=ctx.author.id)
@@ -53,13 +80,23 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
             value = 0
             orders = await self.database.member(author).Orders()
             for x in orders:
-                value = value + x['Price']
-            embed = discord.Embed(title="Membership info", colour=discord.Colour(0xFF00FF))
+                try:
+                    value = value + int(float(x['Price']))
+                except:
+                    pass
+            embed = discord.Embed(colour=author.top_role.colour)
+            # embed = discord.Embed(title="Membership info", colour=discord.Colour(0xFF00FF))
             embed.set_thumbnail(url='https://i.imgur.com/xJyIgAQ.png')
             embed.set_author(name=membershipinfo['Name'], icon_url=author.avatar_url)
-            embed.add_field(name="Number of purchased", value=len(membershipinfo['Orders']), inline=True)
-            embed.add_field(name="Total spent", value=value, inline=True)
-            await ctx.send(embed=embed)
+            embed.add_field(name="Purchases", value=len(membershipinfo['Orders']), inline=True)
+            embed.add_field(name="Total spent", value="$ {:,}".format(value), inline=True)
+            try:
+                filename = "users/" + str(author.id) + ".png"
+                image = discord.File(str(bundled_data_path(self) / filename))
+                embed.set_image(url="attachment://"+ str(author.id) + ".png")
+                await ctx.send(file=image ,embed=embed)         
+            except:
+                pass        
         else:
             await ctx.send("Please register by using !membership register or start ordering with !order")
     
@@ -71,17 +108,40 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
         Usage: !register <name>
         Example: !register Jasper Akerman
         """
-
         author = ctx.author
-        await self.database.member(author).Name.set(name)
-        await self.database.member(author).MemberID.set(author.id)
-        shopper_role = ctx.guild.get_role(482965019189968927)
-        await author.add_roles(shopper_role)
-        embed = discord.Embed(title="Motorsport Management", colour=discord.Colour(
-            0xFF00FF), description="Dear {},\n\nThank you for registering a membership with us at Premium Deluxe Motorsport!".format(name))
-        embed.set_thumbnail(
-            url='https://i.imgur.com/xJyIgAQ.png')
-        await ctx.send(embed=embed)
+        guild = ctx.guild
+        membershipinfo = await self.database.member(author).get_raw()
+        if membershipinfo['Name'] == "":
+            await self.database.member(author).Name.set(name)
+            await self.database.member(author).MemberID.set(author.id)
+            await self.database.member(author).Joined_Date.set(str(datetime.datetime.now().strftime("%d/%m/%y")))
+            shopper_role = ctx.guild.get_role(482965019189968927)
+            await author.add_roles(shopper_role)
+
+            embed = discord.Embed(title="Motorsport Management", colour=author.top_role.colour, description="Dear {},\n\nThank you for registering a membership with us at Premium Deluxe Motorsport!".format(name))
+            embed.set_thumbnail(
+                url='https://i.imgur.com/xJyIgAQ.png')
+            MemberRanks = [x.name for x in author.roles]
+            finalrank = [x for x in MemberRanks if x in self.cardlist.keys()]
+            card_loc = "template/{}.png".format(self.cardlist[finalrank[-1]])
+            img_loc = str(bundled_data_path(self) / card_loc)
+            img = Image.open(img_loc)
+            draw = ImageDraw.Draw(img)
+            font_loc = str(bundled_data_path(self) / "template/BebasNeue.ttf")
+            font = ImageFont.truetype(font_loc, 24)
+            msg = name
+            draw.text((650, 183), msg,(44,44,44),font=font)
+            msg = author.top_role.name
+            draw.text((651, 253), msg,(44,44,44),font=font)
+            msg = str(datetime.datetime.now().strftime("%d/%m/%y"))
+            draw.text((650, 323), msg,(44,44,44),font=font)
+            filename = "users/" + str(author.id) + ".png"
+            img.save(str(bundled_data_path(self) / filename))
+            image = discord.File(str(bundled_data_path(self) / filename))
+            embed.set_image(url="attachment://"+ str(author.id) + ".png")
+            await ctx.send(file=image, embed=embed)
+        else:
+            await ctx.send("You are already registered!")
 
     #[p]membership unregister
     @membership.command(pass_context=True)
@@ -128,7 +188,7 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
         completed = ""
         try:
             if membershipinfo['Name'] != "":
-                embed = discord.Embed(title="Motorsport Orders", colour=discord.Colour(0xFF00FF))
+                embed = discord.Embed(title="Motorsport Orders", colour=author.top_role.colour)
                 embed.set_thumbnail(url='https://i.imgur.com/xJyIgAQ.png')
                 embed.set_author(name=membershipinfo['Name'], icon_url=author.avatar_url)
                 try:
@@ -161,7 +221,7 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
 
     @membership.command(pass_context=True)
     @commands.has_any_role("Administrator")
-    async def importall(self, ctx):
+    async def importall(self, ctx, user_id=None):
         """Import all data from #orders channel to users
         """
         guild = ctx.guild
@@ -178,15 +238,37 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
                         car_name = y['value']
                     if y['name'] == 'Price':
                         price = y['value'].replace("$ ","").replace(',',"")
-                        price = int(price)
+                        price = int(float(price))
                 new_memberid = memberid.replace("<", "").replace(">", "").replace("@", "").replace("!", "")
-                member = guild.get_member(int(new_memberid))
-                async with self.database.member(member).Orders() as orders:
-                    orders.append({"Order_ID": x.id, "Vehicle_Name": car_name, "Price": price, "Status": "Collection"})
-                    counter = counter + 1
+                if user_id is not None:
+                    if new_memberid == user_id:
+                        member = guild.get_member(int(new_memberid))
+                        spent = await self.database.member(member).Spent()
+                        spent = spent + price
+                        async with self.database.member(member).Orders() as orders:
+                            orders.append({"Order_ID": x.id, "Vehicle_Name": car_name, "Price": price, "Status": "Collection"})
+                            counter = counter + 1
+                else:
+                    member = guild.get_member(int(new_memberid))
+                    spent = await self.database.member(member).Spent()
+                    spent = spent + price
+                    async with self.database.member(member).Orders() as orders:
+                        orders.append({"Order_ID": x.id, "Vehicle_Name": car_name, "Price": price, "Status": "Collection"})
+                        counter = counter + 1
             except:
                 pass
         await ctx.send("Imported {}".format(counter))
+
+    @membership.command(pass_context=True)
+    @commands.has_any_role("Administrator")
+    async def clearorders(self, ctx, user_id=None):
+        """Reset user's orders
+        """
+        guild = ctx.guild
+        member = guild.get_member(int(user_id))
+        await self.database.member(member).Orders.set([])
+        await self.database.member(member).Spent.set(0)
+        await ctx.send("Order history for {} has been cleared".format(member.mention))
 
     @membership.command(pass_context=True)
     @checks.is_owner()
@@ -205,12 +287,78 @@ class MOTORSPORT_CUSTOMERS(commands.Cog):
 
     @membershipset.command(pass_context=True)
     @commands.has_any_role("Administrator")
-    async def name(self, ctx, user_id: int, name: str):
+    async def date(self, ctx, user_id: int, *, date: str):
+        """Used to set user's registered date
+        """
+        author = await ctx.guild.fetch_member(user_id)
+        await self.database.member(author).Joined_Date.set(date)
+        await ctx.send("The registered date for {} has been set to {}".format(author.mention, date))
+        MemberRanks = [x.name for x in author.roles]
+        finalrank = [x for x in MemberRanks if x in self.cardlist.keys()]
+        card_loc = "template/{}.png".format(self.cardlist[finalrank[-1]])
+        img_loc = str(bundled_data_path(self) / card_loc)
+        img = Image.open(img_loc)
+        draw = ImageDraw.Draw(img)
+        font_loc = str(bundled_data_path(self) / "template/BebasNeue.ttf")
+        font = ImageFont.truetype(font_loc, 24)
+        msg = str(await self.database.member(author).Name())
+        draw.text((650, 183), msg,(44,44,44),font=font)
+        msg = author.top_role.name
+        draw.text((651, 253), msg,(44,44,44),font=font)
+        msg = str(date)
+        draw.text((650, 323), msg,(44,44,44),font=font)
+        filename = "users/" + str(author.id) + ".png"
+        img.save(str(bundled_data_path(self) / filename))
+
+    @membershipset.command(pass_context=True)
+    @commands.has_any_role("Administrator")
+    async def newcard(self, ctx, user_id: int):
+        """Used to set user's registered date
+        """
+        author = await ctx.guild.fetch_member(user_id)
+        MemberRanks = [x.name for x in author.roles]
+        finalrank = [x for x in MemberRanks if x in self.cardlist.keys()]
+        card_loc = "template/{}.png".format(self.cardlist[finalrank[-1]])
+        img_loc = str(bundled_data_path(self) / card_loc)
+        img = Image.open(img_loc)
+        draw = ImageDraw.Draw(img)
+        font_loc = str(bundled_data_path(self) / "template/BebasNeue.ttf")
+        font = ImageFont.truetype(font_loc, 24)
+        msg = str(await self.database.member(author).Name())
+        draw.text((650, 183), msg,(44,44,44),font=font)
+        msg = author.top_role.name
+        draw.text((651, 253), msg,(44,44,44),font=font)
+        msg = str(await self.database.member(author).Joined_Date())
+        draw.text((650, 323), msg,(44,44,44),font=font)
+        filename = "users/" + str(author.id) + ".png"
+        img.save(str(bundled_data_path(self) / filename))
+        image = discord.File(str(bundled_data_path(self) / filename))
+        await ctx.send(file=image, content="This is the new card") 
+
+    @membershipset.command(pass_context=True)
+    @commands.has_any_role("Administrator")
+    async def name(self, ctx, user_id: int, *, name: str):
         """Used to set user's name
         """
         author = await ctx.guild.fetch_member(user_id)
         await self.database.member(author).Name.set(name)
         await ctx.send("The name for {} has been set to {}".format(author.mention, name))
+        MemberRanks = [x.name for x in author.roles]
+        finalrank = [x for x in MemberRanks if x in self.cardlist.keys()]
+        card_loc = "template/{}.png".format(self.cardlist[finalrank[-1]])
+        img_loc = str(bundled_data_path(self) / card_loc)
+        img = Image.open(img_loc)
+        draw = ImageDraw.Draw(img)
+        font_loc = str(bundled_data_path(self) / "template/BebasNeue.ttf")
+        font = ImageFont.truetype(font_loc, 24)
+        msg = name
+        draw.text((650, 183), msg,(44,44,44),font=font)
+        msg = author.top_role.name
+        draw.text((651, 253), msg,(44,44,44),font=font)
+        msg = str(await self.database.member(author).Joined_Date())
+        draw.text((650, 323), msg,(44,44,44),font=font)
+        filename = "users/" + str(author.id) + ".png"
+        img.save(str(bundled_data_path(self) / filename))
 
     @commands.command(pass_context=True)
     async def cancelorder(self, ctx, Order_ID: int):
