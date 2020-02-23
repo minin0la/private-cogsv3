@@ -13,6 +13,7 @@ class DCC_RESIGN(commands.Cog):
         self.bot = bot
     
     @commands.command(pass_context=True, no_pm=True)
+    @commands.has_any_role('Probationary Trainee', 'Trainee')
     async def resign(self, ctx, *, themessage):
 
         """Used to write a resign letter. Please write a message after the command."""
