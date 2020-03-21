@@ -53,7 +53,7 @@ class DCC_INACTIVE(commands.Cog):
             name = author.name
         seconds = self.units[time_unit] * quantity
         future = int(time.time() + seconds)
-        inactivity_info = self.bot.get_channel(307251546960429057) #Get Inactive-Info Channel
+        inactivity_info = discord.utils.get(ctx.guild.text_channels, name='inactivity-info')
         embed = discord.Embed(title="Downtown Cab Co. Absence Report", colour=discord.Colour(
             0xffff00), description="I wish to inform you that")
         embed.set_thumbnail(
@@ -74,7 +74,7 @@ class DCC_INACTIVE(commands.Cog):
     async def cancelinactive(self, ctx):
         """Removes all your inactive reports"""
         author = ctx.message.author
-        inactivity_info_channel = self.bot.get_channel(307251546960429057) #Get Inactive-Info Channel
+        inactivity_info_channel = discord.utils.get(ctx.guild.text_channels, name='inactivity-info')
         to_remove = []
         async with self.database.guild(ctx.guild).Inactives() as inactives:
             for inactive in inactives:
@@ -102,7 +102,7 @@ class DCC_INACTIVE(commands.Cog):
     async def removeinactive(self, ctx, report_id: str):
         """Remove a specific inactive reports"""
         # author = ctx.message.author
-        inactivity_info_channel = self.bot.get_channel(307251546960429057) #Get Inactive-Info Channel
+        inactivity_info_channel = discord.utils.get(ctx.guild.text_channels, name='inactivity-info') #Get Inactive-Info Channel
         to_remove = []
         async with self.database.guild(ctx.guild).Inactives() as inactives:
             for inactive in inactives:
@@ -213,7 +213,7 @@ class DCC_INACTIVE(commands.Cog):
     async def check_inactives(self):
         print("Checking Inactives")
         getDCCserver = self.bot.get_guild(301659110104104962)
-        management = self.bot.get_channel(665362150440566807) #Get management channel
+        management = discord.utils.get(getDCCserver.text_channels, name='management') #Get management channel
         to_remove = []
         async with self.database.guild(getDCCserver).Inactives() as inactives:
             for inactive in inactives:

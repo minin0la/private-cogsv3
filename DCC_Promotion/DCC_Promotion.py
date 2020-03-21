@@ -23,8 +23,10 @@ class DCC_PROMOTION(commands.Cog):
 
         """Use to promote players"""
         author = ctx.author
-        channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
-        bot_coders_channel = self.bot.get_channel(332558212429512704) #Get Bot-Coder channel
+        # channel = discord.utils.get(ctx.guild.text_channels, name='linda-office') #Get linda-office channel
+        channel = discord.utils.get(ctx.guild.text_channels, name='linda-office')  #Get linda-office channel
+        # bot_coders_channel = discord.utils.get(ctx.guild.text_channels, name='bot-coders') #Get Bot-Coder channel
+        bot_coders_channel = discord.utils.get(ctx.guild.text_channels, name='bot-coders')
         old_role = user.top_role
         await ctx.message.delete()
         await user.add_roles(role_name)
@@ -47,8 +49,8 @@ class DCC_PROMOTION(commands.Cog):
         """Use to demote players"""
 
         author = ctx.message.author
-        channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
-        bot_coders_channel = self.bot.get_channel(332558212429512704) #Get Bot-Coder channel
+        channel = discord.utils.get(ctx.guild.text_channels, name='linda-office') #Get linda-office channel
+        bot_coders_channel = discord.utils.get(ctx.guild.text_channels, name='bot-coders') #Get Bot-Coder channel
         old_role = user.top_role
         await ctx.message.delete()
         await user.add_roles(role_name)
@@ -78,8 +80,8 @@ class DCC_PROMOTION(commands.Cog):
 
         server = ctx.guild
         author = ctx.message.author
-        channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
-        management = self.bot.get_channel(665362150440566807) #Get management channel
+        channel = discord.utils.get(ctx.guild.text_channels, name='linda-office') #Get linda-office channel
+        management = discord.utils.get(ctx.guild.text_channels, name='management') #Get management channel
         visitor = ctx.guild.get_role(317392264571650058)
         await ctx.message.delete()
         while user.top_role != server.default_role:
@@ -109,8 +111,8 @@ class DCC_PROMOTION(commands.Cog):
 
         server = ctx.message.guild
         author = ctx.message.author
-        channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
-        management = self.bot.get_channel(665362150440566807) #Get management channel
+        channel = discord.utils.get(ctx.guild.text_channels, name='linda-office') #Get linda-office channel
+        management = discord.utils.get(ctx.guild.text_channels, name='management') #Get management channel
         suspendrole = ctx.guild.get_role(605499324293447692) # Get Suspended Role
         await ctx.message.delete()
         while user.top_role != server.default_role:
@@ -139,8 +141,8 @@ class DCC_PROMOTION(commands.Cog):
         """Use to accept players"""
 
         author = ctx.message.author
-        channel = self.bot.get_channel(367383714810036225) #Get linda-office channel
-        management = self.bot.get_channel(665362150440566807) #Get management channel
+        channel = discord.utils.get(ctx.guild.text_channels, name='linda-office') #Get linda-office channel
+        management = discord.utils.get(ctx.guild.text_channels, name='management') #Get management channel
         interview = ctx.guild.get_role(353065275303788544)
         if role_name.name == "Trainee" or role_name.name == "Probationary Trainee":
             if any(r.name == 'Interviewee' for r in user.roles):
