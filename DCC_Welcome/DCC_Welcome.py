@@ -53,6 +53,7 @@ class DCC_WELCOME(commands.Cog):
         author = ctx.author
         interview_channel = self.bot.get_channel(353066751853854721)
         interviewee = ctx.guild.get_role(762663738179452940)
+        await ctx.send("Works")
         if len(author.roles) == 1:
             await author.add_roles(interviewee)
             await ctx.message.delete()
