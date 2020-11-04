@@ -52,7 +52,7 @@ class DCC_WELCOME(commands.Cog):
         """Use to give interview role"""
         author = ctx.author
         interview_channel = self.bot.get_channel(353066751853854721)
-        interviewee = ctx.guild.get_role(353065275303788544)
+        interviewee = ctx.guild.get_role(762663738179452940)
         if len(author.roles) == 1:
             await author.add_roles(interviewee)
             await ctx.message.delete()
