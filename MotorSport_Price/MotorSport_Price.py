@@ -9,7 +9,7 @@ from discord.ext import tasks
 from redbot.core import Config
 from redbot.core import commands
 
-gc = pygsheets.authorize(service_file='/root/client_secret.json')
+gc = pygsheets.authorize(service_file='/data/client_secret.json')
 
 
 class MOTORSPORT_PRICE(commands.Cog):
