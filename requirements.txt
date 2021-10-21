@@ -6,7 +6,7 @@ apsw-wheels==3.30.1.post3
 astroid==2.3.3
 async-timeout==3.0.1
 attrs==19.3.0
-Babel==2.8.0
+Babel==2.9.1
 cffi==1.13.2
 chardet==3.0.4
 Click==7.0
